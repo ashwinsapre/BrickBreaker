@@ -17,7 +17,10 @@ public:
     bool gameStarted = false;
     bool needNewTarget = false;
     bool win = false;
+    bool paused = false;
+
     int aliveBrickCount = 0;
+
     float targetX=300;
     float targetY=300;
     float brickLength = 70.f;
@@ -30,14 +33,8 @@ public:
 
     float dt = 0;
     float mul = 80;
+    float lastKeyPressed = 0;
     Timeline *globalTimeline;
-    // float acceleration = 20.f;
-    // float friction; 1.f;
-    // float gravity;
-    // float maxVelocity;
-    // float minVelocity;
-    // float terminalVelocity;
-    // sf::Vector2f velocity;
     
     CollisionEventHandler *ceh;
 

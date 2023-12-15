@@ -32,12 +32,12 @@ void send(Game *g){
 
 void receive(Game *g, std::vector<StaticPlatform*> *bricks){
     if (g->receiveFromServer() == "UPDATE"){
-        std::cout<<"MOVE BRICKS DOWN!\n";
+        //std::cout<<"MOVE BRICKS DOWN!\n";
         for (int i=(*bricks).size()-1;i>=0;i--){
-            (*bricks)[i]->move(0, 20.f);
+            (*bricks)[i]->move(0, 10.f);
         }
-        g->brickBottom+=20.f;
-        g->brickTop+=20.f;
+        g->brickBottom+=10.f;
+        g->brickTop+=10.f;
     }
 }
 void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks, StaticPlatform *platform){
@@ -59,6 +59,7 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
     }
 
     else if(ball->isAlive){
+        
         g->window.draw(*ball);
         if (platform->newColor==0){
             platform->setFillColor(sf::Color::Red);
@@ -71,6 +72,22 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
             if (b->isVisible){
                 g->window.draw(*b);
             }
+        }
+        if (g->paused){
+            sf::RectangleShape overlay(sf::Vector2f(g->window.getSize().x, g->window.getSize().y));
+            overlay.setFillColor(sf::Color(0, 0, 0, 150));  // Adjust alpha value for transparency
+            g->window.draw(overlay);
+
+            sf::Font font;
+            font.loadFromFile("arial.ttf");
+            sf::Text text;
+            text.setFont(font);
+            text.setString("Game Paused");
+            text.setCharacterSize(24);
+
+            text.setFillColor(sf::Color::White);
+            text.setPosition(400.f, 300.f);
+            g->window.draw(text);
         }
     }
     else{
@@ -102,20 +119,21 @@ void eventService(Game *g, sf::Event event){
 
 void inputService(Game *g, StaticPlatform *platform, ScriptManager *sm){
     if (g->window.hasFocus()){
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !g->paused){
                 platform->move(2.0f*g->dt*g->mul, 0);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !g->paused){
                 platform->move(-2.0f*g->dt*g->mul, 0);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)){
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !g->paused){
                 sm->runOne("change_size", true, "object_context");
                 sf::Vector2f newsize(platform->xsize, platform->ysize);
                 platform->setSize(newsize);
                 platform->setPosition(0,500.f);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
-                platform->move(-2.0f*g->dt*g->mul, 0);
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && (g->globalTimeline->getCurrentTime() - g->lastKeyPressed)>0.1){
+                g->lastKeyPressed = g->globalTimeline->getCurrentTime();
+                g->paused = !g->paused;
             }
                 
         }
