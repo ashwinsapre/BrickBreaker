@@ -5,7 +5,6 @@
 
 class Timeline{
 public:
-    sf::Mutex m;
     float start_time;
     float current_time;
     float tic;

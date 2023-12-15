@@ -42,8 +42,6 @@ int main()
         sm->addContext(isolate, object_context, "object_context"); 
         game->init();
 
-        float dt=0;
-        float mul = 40;
         std::vector<StaticPlatform*> *bricks = new std::vector<StaticPlatform*>();
         Character *ball = new Character(20.f);
         StaticPlatform *platform = new StaticPlatform(100.f, 10.f, 350.f, 500.f, sf::Color::Red);
@@ -57,9 +55,19 @@ int main()
         sm->addScript("handle_event", "scripts/handle_event.js", "object_context");
         sm->addScript("raise_event", "scripts/raise_event.js", "object_context");
 
+        //time management
+        float dt = 0;
+        float lastTime=0;
+        float curr_time=0;
+        float mul = 40;
         while (game->window.isOpen())
         {
-            std::cout<<game->aliveBrickCount<<std::endl;
+            curr_time = game->globalTimeline->getCurrentTime();
+            dt = curr_time - lastTime;
+            game->dt = dt;
+            lastTime = curr_time;
+            std::cout<<game->dt<<std::endl;
+        
             sf::Event event;
             eventService(game, event); 
             inputService(game, platform, sm);

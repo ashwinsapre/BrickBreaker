@@ -6,10 +6,10 @@ void Game::init() {
     view.reset(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
     eventManager = new EventManager();
     ceh = new CollisionEventHandler();
-    // taeh = new TargetAcquiredEventHandler();
-    // oobeh = new OOBEventHandler();
     // peh = new PauseEventHandler();
 
+    sf::Clock c;
+    globalTimeline = new Timeline(c,1.f);
     eventManager->reg(1, ceh);
     // eventManager->reg(2, taeh);
     // eventManager->reg(3, oobeh);

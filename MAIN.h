@@ -103,10 +103,10 @@ void eventService(Game *g, sf::Event event){
 void inputService(Game *g, StaticPlatform *platform, ScriptManager *sm){
     if (g->window.hasFocus()){
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
-                platform->move(2.0f, 0);
+                platform->move(2.0f*g->dt*g->mul, 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
-                platform->move(-2.0f, 0);
+                platform->move(-2.0f*g->dt*g->mul, 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)){
                 sm->runOne("change_size", true, "object_context");
@@ -114,12 +114,15 @@ void inputService(Game *g, StaticPlatform *platform, ScriptManager *sm){
                 platform->setSize(newsize);
                 platform->setPosition(0,500.f);
             }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
+                platform->move(-2.0f*g->dt*g->mul, 0);
+            }
                 
         }
 }
 
 void physicsService(Game *g, Character *ball){
-    ball->physics();
+    ball->physics(g->dt);
 }
 
 void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::vector<StaticPlatform*> *bricks, ScriptManager *sm){

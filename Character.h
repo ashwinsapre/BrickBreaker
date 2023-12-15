@@ -21,6 +21,7 @@ public:
     float xvel=1;
     float yvel=1;
     int length;
+    float maxVel = 0.2f;
 
     sf::Color color;
 
@@ -40,7 +41,7 @@ public:
 
     void movement(const float dirx, const float diry);
 
-    void physics();
+    void physics(float dt);
     void propagate(float x, float y);
 
     void collisions();

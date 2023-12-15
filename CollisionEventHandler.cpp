@@ -9,6 +9,12 @@ void CollisionEventHandler::onEvent(Event *e){
 	else{
 		e->ball->velocity.y = e->ball->velocity.y*-1;
         e->ball->velocity.x = e->offset*0.005 + e->ball->velocity.x;
+		if (e->ball->velocity.x < -1){
+			e->ball->velocity.x = -1;
+		}
+		if (e->ball->velocity.x > 1){
+			e->ball->velocity.x = 1;
+		}
 	}
 	std::cout<<"Collision event!\n";
 }

@@ -27,7 +27,10 @@ public:
 
     float xvel = 1;
     float yvel = 1;
-    //Timeline *globalTimeline;
+
+    float dt = 0;
+    float mul = 80;
+    Timeline *globalTimeline;
     // float acceleration = 20.f;
     // float friction; 1.f;
     // float gravity;

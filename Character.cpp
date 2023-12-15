@@ -41,7 +41,19 @@ void Character::movement(const float dirx, const float diry) {
     velocity.y = diry * yvel;
 }
 
-void Character::physics() {
+void Character::physics(float dt) {
+    if (velocity.x < -maxVel){
+		velocity.x = -maxVel;
+	}
+    if (velocity.x > maxVel){
+        velocity.x = maxVel;
+    }
+    if (velocity.y < -maxVel){
+		velocity.y = -maxVel;
+	}
+    if (velocity.y > maxVel){
+        velocity.y = maxVel;
+    }
     move(velocity);
 }
 
