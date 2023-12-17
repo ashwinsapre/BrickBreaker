@@ -69,7 +69,7 @@ void receive(Game *g, std::vector<StaticPlatform*> *bricks){
 }
 void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks, StaticPlatform *platform){
     sf::Font font;
-    font.loadFromFile("arial.ttf");
+    font.loadFromFile("./Assets/arial.ttf");
     g->window.clear();
     if (g->gameStarted){
         //WIN SCREEN
@@ -262,6 +262,7 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
                             }
                             //Event *e = new Event(1, this, )
                             Event *e = new Event(1, 1.0, 0, 0, ball);
+                            g->brickHitSound.play();
                             g->eventManager->enqueue(e);
                             g->eventManager->raise(e);
                             //ball->velocity.x = -ball->velocity.x;
@@ -277,6 +278,7 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
                                 ball->setPosition(ball->getPosition().x, brickBounds.top + brickBounds.height);
                             }
                             Event *e = new Event(1, 0, 1.0, 0, ball);
+                            g->brickHitSound.play();
                             g->eventManager->enqueue(e);
                             g->eventManager->raise(e);
                             //ball->velocity.y = -ball->velocity.y;
@@ -288,6 +290,7 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
     }
 
     if (ball->getGlobalBounds().intersects(platform->getGlobalBounds())){
+	    g->hitSound.play();
         float offsetFromCenter = ball->getPosition().x - (platform->getGlobalBounds().left + platform->getGlobalBounds().width/2);
         sm->runOne("handle_event", true, "object_context");
         Event *e = new Event(1, 0, 1.0, offsetFromCenter, ball);

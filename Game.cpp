@@ -6,6 +6,10 @@ void Game::init() {
     view.reset(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
     eventManager = new EventManager();
     ceh = new CollisionEventHandler();
+    hitBuffer.loadFromFile("./Assets/hit.wav");
+    hitSound.setBuffer(hitBuffer);
+    brickHitBuffer.loadFromFile("./Assets/brick_hit.wav");
+    brickHitSound.setBuffer(brickHitBuffer);
     // peh = new PauseEventHandler();
 
     sf::Clock c;

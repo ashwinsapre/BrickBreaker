@@ -7,6 +7,7 @@
 #include "EventManager.h"
 #include "CollisionEventHandler.h"
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <zmq.hpp>
 
@@ -45,6 +46,10 @@ public:
 
     zmq::context_t context;
     zmq::socket_t sock;
+
+    sf::SoundBuffer hitBuffer, brickHitBuffer;
+    sf::Sound hitSound;
+    sf::Sound brickHitSound;
 
     zmq::socket_t main_sock;
 
