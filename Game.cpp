@@ -21,7 +21,6 @@ void Game::init() {
     std::cout << "Connecting to server..." << std::endl;
     sock.send(zmq::buffer(data), zmq::send_flags::none);
 
-    //get target coords
     zmq::message_t id_reply;
     sock.recv(id_reply, zmq::recv_flags::none);
     std::string message(static_cast<char*>(id_reply.data()), id_reply.size());

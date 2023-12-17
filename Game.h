@@ -18,6 +18,7 @@ public:
     bool needNewTarget = false;
     bool win = false;
     bool paused = false;
+    bool gameEnded = false;
 
     int aliveBrickCount = 0;
 

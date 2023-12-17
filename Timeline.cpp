@@ -1,15 +1,19 @@
 #include "Timeline.h"
 
 Timeline::Timeline(sf::Clock c, float ticSize) {
-    this->isPaused = false;
     this->clock = c;
+    this->isPaused = false;
     this->tic = ticSize;
     this->start_time = 0;
     // Set to start of anchor later
 }
 
 float Timeline::getCurrentTime() {
-    return (clock.getElapsedTime().asSeconds() - this->start_time) / this->tic;
+    if (isPaused) {
+        return last_paused_time;
+    } else {
+        return (clock.getElapsedTime().asSeconds() - paused_time_total);
+    }
 }
 
 void Timeline::changeTicSize(float t) {
@@ -17,10 +21,18 @@ void Timeline::changeTicSize(float t) {
 }
 
 void Timeline::pause() {
-    this->isPaused = true;
-    last_paused_time = this->getCurrentTime();
+    if (!isPaused) {
+        last_paused_time = getCurrentTime();
+        isPaused = true;
+    }
 }
 
 void Timeline::unpause() {
-    this->isPaused = false;
+    if (isPaused) {
+        float now = clock.getElapsedTime().asSeconds();
+        paused_time_total += now - last_paused_time;
+        last_paused_time = now;  // Update last_paused_time to the current time
+        isPaused = false;
+    }
 }
+

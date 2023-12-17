@@ -9,7 +9,7 @@ void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
     //init 2 rows of bricks
     bool stagger=true;
     int aliveBrickCount = 0;
-    for(float y=200; y<g->_windowHeight-350; y+=g->brickHeight+5){
+    for(float y=20; y<g->_windowHeight-400; y+=g->brickHeight+5){
         for(float x=0; x<g->_windowLength; x+=g->brickLength+5){
             StaticPlatform *b = new StaticPlatform(g->brickLength, g->brickHeight, stagger?x:x+25, y, sf::Color::White);
             bricks->push_back(b);
@@ -19,6 +19,33 @@ void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
     }
     //init player
     //init ball
+    g->aliveBrickCount = aliveBrickCount;
+    ball->setPos(400.f, 450.f);
+    ball->velocity = sf::Vector2f(0, g->yvel);
+    ball->move(ball->velocity);
+}
+
+void reset(Game *g, Character *ball, StaticPlatform *platform, std::vector<StaticPlatform*> *bricks){
+    // Reset brick positions
+    bool stagger = true;
+    int aliveBrickCount = 0;
+    auto brickIt = bricks->begin(); // Iterator for bricks
+    for(float y = 20; y < g->_windowHeight - 400; y += g->brickHeight + 5) {
+        for(float x = 0; x < g->_windowLength; x += g->brickLength + 5) {
+            // Check if there are still bricks in the vector
+            if (brickIt != bricks->end()) {
+                // Update the brick position to its initial position
+                (*brickIt)->setPosition(stagger ? x : x + 25, y);
+                (*brickIt)->isVisible = 1;
+                ++brickIt;
+                aliveBrickCount++;
+            }
+        }
+        stagger = !stagger;
+    }
+
+    platform->setPosition(350.f, 550.f);
+
     g->aliveBrickCount = aliveBrickCount;
     ball->setPos(400.f, 450.f);
     ball->velocity = sf::Vector2f(0, g->yvel);
@@ -41,71 +68,101 @@ void receive(Game *g, std::vector<StaticPlatform*> *bricks){
     }
 }
 void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks, StaticPlatform *platform){
+    sf::Font font;
+    font.loadFromFile("arial.ttf");
     g->window.clear();
-    if (g->win){
-        sf::Font font;
-        font.loadFromFile("arial.ttf");
-        sf::Text text;
-        text.setFont(font);
-        text.setString("YOU WIN!!");
-        text.setCharacterSize(40);
-
-       // Set the text color
-        text.setFillColor(sf::Color::Green);
-
-       // Set the text position
-        text.setPosition(400.f, 300.f);
-        g->window.draw(text);
-    }
-
-    else if(ball->isAlive){
-        
-        g->window.draw(*ball);
-        if (platform->newColor==0){
-            platform->setFillColor(sf::Color::Red);
-        }
-        else{
-            platform->setFillColor(sf::Color::Green);
-        }
-        g->window.draw(*platform);
-        for(auto b: *bricks){
-            if (b->isVisible){
-                g->window.draw(*b);
-            }
-        }
-        if (g->paused){
-            sf::RectangleShape overlay(sf::Vector2f(g->window.getSize().x, g->window.getSize().y));
-            overlay.setFillColor(sf::Color(0, 0, 0, 150));  // Adjust alpha value for transparency
-            g->window.draw(overlay);
-
-            sf::Font font;
-            font.loadFromFile("arial.ttf");
+    if (g->gameStarted){
+        //WIN SCREEN
+        if (g->win){
             sf::Text text;
             text.setFont(font);
-            text.setString("Game Paused");
-            text.setCharacterSize(24);
-
-            text.setFillColor(sf::Color::White);
+            text.setString("YOU WIN!!");
+            text.setCharacterSize(40);
+            text.setFillColor(sf::Color::Green);
             text.setPosition(400.f, 300.f);
             g->window.draw(text);
+
+            text.setString("Press SPACE to continue...");
+            text.setCharacterSize(20);
+            text.setFillColor(sf::Color::White);
+            text.setPosition(400.f, 350.f);
+            g->window.draw(text);
+        }
+
+        //GAME SCREEN
+        else if(!g->gameEnded){
+            g->window.draw(*ball);
+            if (platform->newColor==0){
+                platform->setFillColor(sf::Color::Red);
+            }
+            else{
+                platform->setFillColor(sf::Color::Green);
+            }
+            g->window.draw(*platform);
+            for(auto b: *bricks){
+                if (b->isVisible){
+                    g->window.draw(*b);
+                }
+            }
+            //render timer
+            sf::Text text;
+            text.setFont(font);
+            float elapsedTimeInSeconds = g->globalTimeline->getCurrentTime();
+            text.setString(std::to_string(elapsedTimeInSeconds));
+            text.setCharacterSize(20);
+            text.setFillColor(sf::Color::White);
+            text.setPosition(0.f, 0.f);
+            g->window.draw(text);
+
+            //PAUSE OVERLAY
+            if (g->paused){
+                sf::RectangleShape overlay(sf::Vector2f(g->window.getSize().x, g->window.getSize().y));
+                overlay.setFillColor(sf::Color(0, 0, 0, 150));  // Adjust alpha value for transparency
+                g->window.draw(overlay);
+                sf::Text text;
+                text.setFont(font);
+                text.setString("Game Paused");
+                text.setCharacterSize(24);
+
+                text.setFillColor(sf::Color::White);
+                text.setPosition(400.f, 300.f);
+                g->window.draw(text);
+            }
+        }
+        //GAME OVER SCREEN
+        else if (g->gameEnded){
+            sf::Text text;
+            text.setFont(font);
+            text.setString("Game Over!");
+            text.setCharacterSize(24);
+            text.setFillColor(sf::Color::Red);
+            text.setPosition(400.f, 300.f);
+            g->window.draw(text);
+
+            text.setString("Press RETURN/ENTER to continue...");
+            text.setCharacterSize(20);
+            text.setFillColor(sf::Color::White);
+            text.setPosition(400.f, 350.f);
+            g->window.draw(text);
+
         }
     }
     else{
-        sf::Font font;
-        font.loadFromFile("arial.ttf");
+        //START SCREEN
         sf::Text text;
         text.setFont(font);
-        text.setString("Game Over!");
-        text.setCharacterSize(24);
-
-       // Set the text color
-        text.setFillColor(sf::Color::White);
-
-       // Set the text position
+        text.setString("BrickBreaker");
+        text.setCharacterSize(40);
+        text.setFillColor(sf::Color::Green);
         text.setPosition(400.f, 300.f);
         g->window.draw(text);
-
+        text.setString("Press SPACE to begin...");
+        text.setCharacterSize(20);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(400.f, 350.f);
+        g->window.draw(text);
     }
+    
     g->window.display();
 }
 
@@ -117,23 +174,54 @@ void eventService(Game *g, sf::Event event){
         }
 }
 
-void inputService(Game *g, StaticPlatform *platform, ScriptManager *sm){
+void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks, StaticPlatform *platform,  ScriptManager *sm){
     if (g->window.hasFocus()){
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !g->paused){
+            //START GAME
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !g->gameStarted){
+                g->gameStarted=true;
+                g->globalTimeline->clock.restart();
+            }
+
+            //RESTART GAME
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return) && g->gameEnded){
+                g->gameStarted = false;
+                g->gameEnded = false;
+                g->needNewTarget = false;
+                g->win = false;
+                g->paused = false;
+                g->gameEnded = false;
+                reset(g, ball, platform, bricks);
+            }
+
+            //MOVE PLATFORM RIGHT
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !g->paused && g->gameStarted){
                 platform->move(2.0f*g->dt*g->mul, 0);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !g->paused){
+            //MOVE PLATFORM LEFT
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !g->paused && g->gameStarted){
                 platform->move(-2.0f*g->dt*g->mul, 0);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !g->paused){
+            //TRIGGER EXTERNAL SCRIPT
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !g->paused && g->gameStarted){
                 sm->runOne("change_size", true, "object_context");
                 sf::Vector2f newsize(platform->xsize, platform->ysize);
                 platform->setSize(newsize);
                 platform->setPosition(0,500.f);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && (g->globalTimeline->getCurrentTime() - g->lastKeyPressed)>0.1){
-                g->lastKeyPressed = g->globalTimeline->getCurrentTime();
+            //PAUSE
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && g->gameStarted && (g->globalTimeline->clock.getElapsedTime().asSeconds() - g->lastKeyPressed)>0.1){
+                g->lastKeyPressed = g->globalTimeline->clock.getElapsedTime().asSeconds();
                 g->paused = !g->paused;
+                //if the game becomes unpaused
+                if (!g->paused){
+                    g->globalTimeline->unpause();
+                    std::cout<<"restarted at"<<g->globalTimeline->getCurrentTime()<<std::endl;
+                }
+                //if the game becomes paused
+                else{
+                    g->globalTimeline->pause();
+                    std::cout<<"paused at"<<g->globalTimeline->last_paused_time<<std::endl;
+                }
             }
                 
         }
@@ -233,14 +321,17 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
 
     if (ball->getPosition().y > 600 ){
         ball->isAlive = false;
+        g->gameEnded = true;
     }
     for (int i=(*bricks).size()-1;i>=0;i--){
         if ((*bricks)[i]->getPosition().y >= platform->getPosition().y - 20.f){
             ball->isAlive = false;
+            g->gameEnded = true;
         }
     }
     if (g->aliveBrickCount==0){
         g->win = true;
+        g->gameEnded = true;
     }
 
 }

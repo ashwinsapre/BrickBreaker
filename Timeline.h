@@ -5,12 +5,12 @@
 
 class Timeline{
 public:
+    bool isPaused = false;
     float start_time;
     float current_time;
     float tic;
-    float elapsed_paused_time;
-    float last_paused_time;
-    bool isPaused;
+    float paused_time_total = 0.f;
+    float last_paused_time = 0.f;
     sf::Clock clock;
 
     Timeline(sf::Clock c, float ticSize);

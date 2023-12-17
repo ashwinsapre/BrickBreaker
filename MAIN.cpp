@@ -44,7 +44,7 @@ int main()
 
         std::vector<StaticPlatform*> *bricks = new std::vector<StaticPlatform*>();
         Character *ball = new Character(20.f);
-        StaticPlatform *platform = new StaticPlatform(100.f, 10.f, 350.f, 500.f, sf::Color::Red);
+        StaticPlatform *platform = new StaticPlatform(100.f, 10.f, 350.f, 550.f, sf::Color::Red);
         init(game, ball, bricks);
 
         platform->exposeToV8(isolate, object_context);
@@ -64,18 +64,19 @@ int main()
         {
             curr_time = game->globalTimeline->getCurrentTime();
             dt = curr_time - lastTime;
-            game->dt = dt;
+            if (!game->paused){
+                game->dt = dt;
+            }
             lastTime = curr_time;
-            std::cout<<game->dt<<std::endl;
-        
+            //std::cout<<game->dt<<std::endl;
             sf::Event event;
             eventService(game, event); 
-            inputService(game, platform, sm);
-            if (!game->paused){
-                physicsService(game, ball);
-                collisionService(game, platform, ball, bricks, sm);
-                send(game);
-                receive(game, bricks);
+            inputService(game, ball, bricks, platform, sm);
+            if (game->gameStarted && !game->paused){
+                    physicsService(game, ball);
+                    collisionService(game, platform, ball, bricks, sm);
+                    send(game);
+                    receive(game, bricks);
             }
             renderService(game, ball, bricks, platform);
         }
