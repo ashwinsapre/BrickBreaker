@@ -1,8 +1,10 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <random>
 #include "Event.h"
 #include "ScriptManager.h"
+float elapsedTimeInSeconds;
 
 void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
     //std::cout<<"making bricks\n";
@@ -107,7 +109,10 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
             //render timer
             sf::Text text;
             text.setFont(font);
-            float elapsedTimeInSeconds = g->globalTimeline->getCurrentTime();
+            
+            if (!g->paused){
+                elapsedTimeInSeconds = g->globalTimeline->getCurrentTime();
+            }
             text.setString(std::to_string(elapsedTimeInSeconds));
             text.setCharacterSize(20);
             text.setFillColor(sf::Color::White);
@@ -234,10 +239,18 @@ void physicsService(Game *g, Character *ball){
 void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::vector<StaticPlatform*> *bricks, ScriptManager *sm){
     if (g->brickTop < ball->getPosition().y < g->brickBottom){
         //collisions of ball with bricks
+        int randomIndex = rand() % g->aliveBrickCount;
+        int count = 0;
 
         for (int i = (*bricks).size() - 1; i >= 0; i--){
-
             if ((*bricks)[i]->isVisible){
+                //power up logic
+                if (count == randomIndex && g->lastPowerUpTime==0.f) {
+                    std::cout<<"Setting texture\n";
+                    (*bricks)[i]->setPower();
+                    g->lastPowerUpTime = g->globalTimeline->getCurrentTime();
+                }
+                
                 sf::FloatRect brickBounds = (*bricks)[i]->getGlobalBounds();
                 if (ball->getGlobalBounds().intersects(brickBounds)) {
                     (*bricks)[i]->isVisible = false;
@@ -285,6 +298,19 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
                         }
                     }
                 }
+            }
+        }
+    }
+
+    //reset power up logic
+    for (auto b : *bricks) {
+        if (b->isVisible && g->lastPowerUpTime > 0.f) {
+            float elapsedTime = g->globalTimeline->getCurrentTime() - g->lastPowerUpTime;
+            if (elapsedTime > 3.0f) {
+                std::cout<<"Resetting texture\n";
+                // Reset the brick to its original state
+                b->resetPower();
+                g->lastPowerUpTime = 0.f;
             }
         }
     }

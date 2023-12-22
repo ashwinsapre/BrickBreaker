@@ -10,6 +10,16 @@ StaticPlatform::StaticPlatform(float sizeX, float sizeY, float initX, float init
         setFillColor(c);
 }
 
+void StaticPlatform::setPower(){
+    if (power.loadFromFile("./Assets/star.png")) {
+        setTexture(&power);
+    }
+}
+
+void StaticPlatform::resetPower(){
+    setTexture(nullptr);
+}
+
 sf::FloatRect StaticPlatform::getBoundingBox(){
         return getGlobalBounds();
 }

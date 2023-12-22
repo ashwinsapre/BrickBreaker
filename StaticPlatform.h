@@ -12,7 +12,10 @@ public:
 	float ysize = 0;
 	int isVisible = 1;
 	int newColor = 0;
+    sf::Texture power;
 	StaticPlatform(float sizeX, float sizeY, float initX, float initY, sf::Color c);
+    void setPower();
+    void resetPower();
     sf::FloatRect getBoundingBox();
     v8::Local<v8::Object> exposeToV8(v8::Isolate *isolate, v8::Local<v8::Context> &context, std::string context_name="default");
     static void setGameObjectX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);

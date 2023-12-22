@@ -36,6 +36,7 @@ public:
     float dt = 0;
     float mul = 80;
     float lastKeyPressed = 0;
+    float lastPowerUpTime = 0.f;
     Timeline *globalTimeline;
     
     CollisionEventHandler *ceh;
