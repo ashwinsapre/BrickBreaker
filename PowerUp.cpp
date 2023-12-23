@@ -1,9 +1,13 @@
 // PowerUp.cpp
 #include "PowerUp.h"
+#include <iostream>
 
 PowerUp::PowerUp(float size) : sf::CircleShape(size) {
     // Initialize the power-up properties
     isActive = false;
+}
+PowerUp::~PowerUp(){
+    std::cout<<"Destructor\n";
 }
 
 void PowerUp::setPowerUp() {

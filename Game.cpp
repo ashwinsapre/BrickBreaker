@@ -7,6 +7,7 @@ void Game::init() {
     eventManager = new EventManager();
     ceh = new CollisionEventHandler();
     stareh = new StarPowerEventHandler();
+    freezeeh = new FreezePowerEventHandler();
     hitBuffer.loadFromFile("./Assets/hit.wav");
     hitSound.setBuffer(hitBuffer);
     brickHitBuffer.loadFromFile("./Assets/brick_hit.wav");
@@ -17,6 +18,7 @@ void Game::init() {
     globalTimeline = new Timeline(c,1.f);
     eventManager->reg(1, ceh);
     eventManager->reg(2, stareh);
+    eventManager->reg(3, freezeeh);
     // eventManager->reg(2, taeh);
     // eventManager->reg(3, oobeh);
     //globalTimeline = t;

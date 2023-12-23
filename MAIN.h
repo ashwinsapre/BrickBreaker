@@ -5,7 +5,16 @@
 #include "Event.h"
 #include "ScriptManager.h"
 #include "StarPowerUp.h"
+#include "FreezePowerUp.h"
 float elapsedTimeInSeconds;
+
+int getRandom(){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distribution(0, 1);
+    int randomValue = distribution(gen);
+    return randomValue;
+}
 
 void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
     //std::cout<<"making bricks\n";
@@ -26,7 +35,14 @@ void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
     ball->setPos(400.f, 450.f);
     ball->velocity = sf::Vector2f(0, g->yvel);
     ball->move(ball->velocity);
-    g->power = new StarPowerUp(20);
+
+    if (getRandom()==0){
+        g->power = new StarPowerUp(20);
+    }
+    else{
+        g->power = new FreezePowerUp(20);
+    }
+    
 }
 
 void reset(Game *g, Character *ball, StaticPlatform *platform, std::vector<StaticPlatform*> *bricks){
@@ -71,6 +87,7 @@ void receive(Game *g, std::vector<StaticPlatform*> *bricks){
         g->brickTop+=10.f;
     }
 }
+
 void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks, StaticPlatform *platform){
     sf::Font font;
     font.loadFromFile("./Assets/arial.ttf");
@@ -90,9 +107,26 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
             g->power->isActive = false;
             g->isPowerActive = false;
             g->endPowerUpTime = g->globalTimeline->getCurrentTime();
-            Event *e = new Event(2, 0, 0, 0, ball);
-            g->eventManager->enqueue(e);
-            g->eventManager->raise(e);
+            if (dynamic_cast<StarPowerUp*>(g->power)) {
+                std::cout << "It's a StarPowerUp!" << std::endl;
+                Event *e = new Event(2, 0, 0, 0, ball);
+                g->eventManager->enqueue(e);
+                g->eventManager->raise(e);
+            }
+            else {
+                std::cout << "It's a FreezePowerUp!" << std::endl;
+                Event *e = new Event(3, 0, 0, 0, ball);
+                g->eventManager->enqueue(e);
+                g->eventManager->raise(e);
+            }
+
+            //randomly setting new powerup type
+            if (getRandom()==0){
+                g->power = new StarPowerUp(20);
+            }
+            else{
+                g->power = new FreezePowerUp(20);
+            }
         }
 
         //WIN SCREEN
@@ -271,7 +305,7 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
                 if (ball->getGlobalBounds().intersects(brickBounds)) {
                     (*bricks)[i]->isVisible = false;
                     g->aliveBrickCount-=1;
-                    if (!g->isPowerActive){
+                    if (!g->isPowerActive || dynamic_cast<FreezePowerUp*>(g->power)){
                         // Calculate intersection depth
                         float intersectDepthX = std::min(ball->getGlobalBounds().left + ball->getGlobalBounds().width, brickBounds.left + brickBounds.width) - 
                                                 std::max(ball->getGlobalBounds().left, brickBounds.left);
@@ -328,9 +362,19 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
         //PowerUp->isActive controls visibility
         //Game->isPowerActive controls power
         g->isPowerActive = true;
-        Event *e = new Event(2, 0, 0, 1, ball);
-        g->eventManager->enqueue(e);
-        g->eventManager->raise(e);
+        if (dynamic_cast<StarPowerUp*>(g->power)) {
+            std::cout << "It's a StarPowerUp!" << std::endl;
+            Event *e = new Event(2, 0, 0, 1, ball);
+            g->eventManager->enqueue(e);
+            g->eventManager->raise(e);
+        }
+        else {
+            std::cout << "It's a FreezePowerUp!" << std::endl;
+            Event *e = new Event(3, 0, 0, 1, ball);
+            g->eventManager->enqueue(e);
+            g->eventManager->raise(e);
+        }
+        
     }
 
     if (ball->getGlobalBounds().intersects(platform->getGlobalBounds())){

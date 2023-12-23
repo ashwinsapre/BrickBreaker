@@ -10,6 +10,7 @@ private:
     
 
 public:
+    virtual ~PowerUp();
     bool isActive;
     PowerUp(float size);
 
