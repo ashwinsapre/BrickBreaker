@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "Character.h"
 #include "StaticPlatform.h"
+#include "FreezePowerUp.h"
 #include "MAIN.h"
 #include <v8.h>
 #include <libplatform/libplatform.h>
@@ -64,7 +65,7 @@ int main()
         {
             curr_time = game->globalTimeline->getCurrentTime();
             dt = curr_time - lastTime;
-            if (!game->paused){
+            if (!game->paused && !game->globalTimeline->isPaused){
                 game->dt = dt;
             }
             lastTime = curr_time;

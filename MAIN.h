@@ -95,26 +95,23 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
     if (g->gameStarted){
         //if it has been 5 seconds since the last power up ended, make a new power up
         if (!g->power->isActive && (g->globalTimeline->getCurrentTime() - g->endPowerUpTime)>5.f){
-            std::cout<<"Start Power up created\n";
             g->power->isActive = true;
             g->startPowerUpTime = g->globalTimeline->getCurrentTime();
             //make random y coordinate
             g->power->setPosition(400.f, 500.f);
         }
         //if it has been 10 seconds since the power up started, stop displaying
-        if (g->power->isActive && (g->globalTimeline->getCurrentTime() - g->startPowerUpTime)>20.f){
-            std::cout<<"Start Power up ended\n";
+        if (g->power->isActive && (g->globalTimeline->getCurrentTime() - g->startPowerUpTime)>10.f){
+            std::cout<<"Power up ended\n";
             g->power->isActive = false;
             g->isPowerActive = false;
             g->endPowerUpTime = g->globalTimeline->getCurrentTime();
             if (dynamic_cast<StarPowerUp*>(g->power)) {
-                std::cout << "It's a StarPowerUp!" << std::endl;
                 Event *e = new Event(2, 0, 0, 0, ball);
                 g->eventManager->enqueue(e);
                 g->eventManager->raise(e);
             }
             else {
-                std::cout << "It's a FreezePowerUp!" << std::endl;
                 Event *e = new Event(3, 0, 0, 0, ball);
                 g->eventManager->enqueue(e);
                 g->eventManager->raise(e);
@@ -168,6 +165,10 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
             if (!g->paused){
                 elapsedTimeInSeconds = g->globalTimeline->getCurrentTime();
             }
+            if (dynamic_cast<FreezePowerUp*>(g->power) && g->isPowerActive){
+                elapsedTimeInSeconds = g->startPowerUpTime;
+            }
+            
             text.setString(std::to_string(elapsedTimeInSeconds));
             text.setCharacterSize(20);
             text.setFillColor(sf::Color::White);
@@ -258,10 +259,12 @@ void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks
 
             //MOVE PLATFORM RIGHT
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !g->paused && g->gameStarted){
+                std::cout<<g->dt<<std::endl;
                 platform->move(2.0f*g->dt*g->mul, 0);
             }
             //MOVE PLATFORM LEFT
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !g->paused && g->gameStarted){
+                std::cout<<g->dt<<std::endl;
                 platform->move(-2.0f*g->dt*g->mul, 0);
             }
             //TRIGGER EXTERNAL SCRIPT
@@ -358,6 +361,7 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
 
     if (g->power->isActive && !g->isPowerActive && ball->getGlobalBounds().intersects(g->power->getGlobalBounds())){
         std::cout<<"gained power up!\n";
+        g->startPowerUpTime = g->globalTimeline->getCurrentTime();
         g->power->isActive = false;
         //PowerUp->isActive controls visibility
         //Game->isPowerActive controls power
