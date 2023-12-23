@@ -6,6 +6,7 @@ void Game::init() {
     view.reset(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
     eventManager = new EventManager();
     ceh = new CollisionEventHandler();
+    stareh = new StarPowerEventHandler();
     hitBuffer.loadFromFile("./Assets/hit.wav");
     hitSound.setBuffer(hitBuffer);
     brickHitBuffer.loadFromFile("./Assets/brick_hit.wav");
@@ -15,6 +16,7 @@ void Game::init() {
     sf::Clock c;
     globalTimeline = new Timeline(c,1.f);
     eventManager->reg(1, ceh);
+    eventManager->reg(2, stareh);
     // eventManager->reg(2, taeh);
     // eventManager->reg(3, oobeh);
     //globalTimeline = t;
@@ -44,19 +46,14 @@ void Game::inputService(float dt, float mul){
         }
     }
     }
-
-
 void Game::sendToServer(std::string data) {
     sock.send(zmq::buffer(data), zmq::send_flags::none);
 }
-
 std::string Game::receiveFromServer() {
     zmq::message_t rep;
     sock.recv(rep, zmq::recv_flags::none);
     return rep.to_string();
 }
-
-
 void Game::disconnect() {
     std::string upd = "Bye";
     sock.send(zmq::buffer(upd), zmq::send_flags::none);

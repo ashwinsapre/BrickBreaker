@@ -24,6 +24,7 @@ public:
     float maxVel = 0.2f;
 
     sf::Color color;
+    sf::Texture power;
 
     Character(float size);
     Character(float size, int length);
@@ -32,6 +33,9 @@ public:
     
     json serialize();
     void deserialize();
+
+    void setPower();
+    void resetPower();
 
     void setPos(float x, float y);
     void setColor(sf::Color c);

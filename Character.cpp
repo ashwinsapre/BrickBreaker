@@ -12,6 +12,16 @@ Character::Character(float size, int length): length(length){
     setRadius(size);
 }
 
+void Character::setPower(){
+    if (power.loadFromFile("./Assets/star.png")) {
+        setTexture(&power);
+    }
+}
+
+void Character::resetPower(){
+    setTexture(nullptr);
+}
+
 void Character::setColor(sf::Color c){
     setFillColor(c);
 }

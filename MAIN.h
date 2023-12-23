@@ -4,6 +4,7 @@
 #include <random>
 #include "Event.h"
 #include "ScriptManager.h"
+#include "StarPowerUp.h"
 float elapsedTimeInSeconds;
 
 void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
@@ -25,6 +26,7 @@ void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
     ball->setPos(400.f, 450.f);
     ball->velocity = sf::Vector2f(0, g->yvel);
     ball->move(ball->velocity);
+    g->power = new StarPowerUp(20);
 }
 
 void reset(Game *g, Character *ball, StaticPlatform *platform, std::vector<StaticPlatform*> *bricks){
@@ -74,6 +76,25 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
     font.loadFromFile("./Assets/arial.ttf");
     g->window.clear();
     if (g->gameStarted){
+        //if it has been 5 seconds since the last power up ended, make a new power up
+        if (!g->power->isActive && (g->globalTimeline->getCurrentTime() - g->endPowerUpTime)>5.f){
+            std::cout<<"Start Power up created\n";
+            g->power->isActive = true;
+            g->startPowerUpTime = g->globalTimeline->getCurrentTime();
+            //make random y coordinate
+            g->power->setPosition(400.f, 500.f);
+        }
+        //if it has been 10 seconds since the power up started, stop displaying
+        if (g->power->isActive && (g->globalTimeline->getCurrentTime() - g->startPowerUpTime)>20.f){
+            std::cout<<"Start Power up ended\n";
+            g->power->isActive = false;
+            g->isPowerActive = false;
+            g->endPowerUpTime = g->globalTimeline->getCurrentTime();
+            Event *e = new Event(2, 0, 0, 0, ball);
+            g->eventManager->enqueue(e);
+            g->eventManager->raise(e);
+        }
+
         //WIN SCREEN
         if (g->win){
             sf::Text text;
@@ -118,6 +139,9 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
             text.setFillColor(sf::Color::White);
             text.setPosition(0.f, 0.f);
             g->window.draw(text);
+            if (g->power && g->power->isActive && !g->isPowerActive){
+                g->window.draw(*g->power);
+            }
 
             //PAUSE OVERLAY
             if (g->paused){
@@ -239,80 +263,74 @@ void physicsService(Game *g, Character *ball){
 void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::vector<StaticPlatform*> *bricks, ScriptManager *sm){
     if (g->brickTop < ball->getPosition().y < g->brickBottom){
         //collisions of ball with bricks
-        int randomIndex = rand() % g->aliveBrickCount;
         int count = 0;
 
         for (int i = (*bricks).size() - 1; i >= 0; i--){
             if ((*bricks)[i]->isVisible){
-                //power up logic
-                if (count == randomIndex && g->lastPowerUpTime==0.f) {
-                    std::cout<<"Setting texture\n";
-                    (*bricks)[i]->setPower();
-                    g->lastPowerUpTime = g->globalTimeline->getCurrentTime();
-                }
-                
                 sf::FloatRect brickBounds = (*bricks)[i]->getGlobalBounds();
                 if (ball->getGlobalBounds().intersects(brickBounds)) {
                     (*bricks)[i]->isVisible = false;
                     g->aliveBrickCount-=1;
-                    // Calculate intersection depth
-                    float intersectDepthX = std::min(ball->getGlobalBounds().left + ball->getGlobalBounds().width, brickBounds.left + brickBounds.width) - 
-                                            std::max(ball->getGlobalBounds().left, brickBounds.left);
+                    if (!g->isPowerActive){
+                        // Calculate intersection depth
+                        float intersectDepthX = std::min(ball->getGlobalBounds().left + ball->getGlobalBounds().width, brickBounds.left + brickBounds.width) - 
+                                                std::max(ball->getGlobalBounds().left, brickBounds.left);
 
-                    float intersectDepthY = std::min(ball->getGlobalBounds().top + ball->getGlobalBounds().height, brickBounds.top + brickBounds.height) - 
-                                            std::max(ball->getGlobalBounds().top, brickBounds.top);
+                        float intersectDepthY = std::min(ball->getGlobalBounds().top + ball->getGlobalBounds().height, brickBounds.top + brickBounds.height) - 
+                                                std::max(ball->getGlobalBounds().top, brickBounds.top);
 
-                    // Determine the collision direction
-                    if (intersectDepthX < intersectDepthY) {
-                        // Collision from left or right
-                        if (ball->getGlobalBounds().left + ball->getGlobalBounds().width > brickBounds.left &&
-                            ball->getGlobalBounds().left < brickBounds.left + brickBounds.width) {
-                            // Adjust the ball's position
-                            if (ball->getGlobalBounds().left < brickBounds.left) {
-                                ball->setPosition(brickBounds.left - ball->getGlobalBounds().width, ball->getPosition().y);
-                            } else {
-                                ball->setPosition(brickBounds.left + brickBounds.width, ball->getPosition().y);
+                        // Determine the collision direction
+                        if (intersectDepthX < intersectDepthY) {
+                            // Collision from left or right
+                            if (ball->getGlobalBounds().left + ball->getGlobalBounds().width > brickBounds.left &&
+                                ball->getGlobalBounds().left < brickBounds.left + brickBounds.width) {
+                                // Adjust the ball's position
+                                if (ball->getGlobalBounds().left < brickBounds.left) {
+                                    ball->setPosition(brickBounds.left - ball->getGlobalBounds().width, ball->getPosition().y);
+                                } else {
+                                    ball->setPosition(brickBounds.left + brickBounds.width, ball->getPosition().y);
+                                }
+                                //Event *e = new Event(1, this, )
+                                Event *e = new Event(1, 1.0, 0, 0, ball);
+                                g->brickHitSound.play();
+                                g->eventManager->enqueue(e);
+                                g->eventManager->raise(e);
+                                //ball->velocity.x = -ball->velocity.x;
                             }
-                            //Event *e = new Event(1, this, )
-                            Event *e = new Event(1, 1.0, 0, 0, ball);
-                            g->brickHitSound.play();
-                            g->eventManager->enqueue(e);
-                            g->eventManager->raise(e);
-                            //ball->velocity.x = -ball->velocity.x;
-                        }
-                    } else {
-                        // Collision from top or bottom
-                        if (ball->getGlobalBounds().top + ball->getGlobalBounds().height > brickBounds.top &&
-                            ball->getGlobalBounds().top < brickBounds.top + brickBounds.height) {
-                            // Adjust the ball's position
-                            if (ball->getGlobalBounds().top < brickBounds.top) {
-                                ball->setPosition(ball->getPosition().x, brickBounds.top - ball->getGlobalBounds().height);
-                            } else {
-                                ball->setPosition(ball->getPosition().x, brickBounds.top + brickBounds.height);
+                        } 
+                        else {
+                            // Collision from top or bottom
+                            if (ball->getGlobalBounds().top + ball->getGlobalBounds().height > brickBounds.top &&
+                                ball->getGlobalBounds().top < brickBounds.top + brickBounds.height) {
+                                // Adjust the ball's position
+                                if (ball->getGlobalBounds().top < brickBounds.top) {
+                                    ball->setPosition(ball->getPosition().x, brickBounds.top - ball->getGlobalBounds().height);
+                                } else {
+                                    ball->setPosition(ball->getPosition().x, brickBounds.top + brickBounds.height);
+                                }
+                                Event *e = new Event(1, 0, 1.0, 0, ball);
+                                g->brickHitSound.play();
+                                g->eventManager->enqueue(e);
+                                g->eventManager->raise(e);
+                                //ball->velocity.y = -ball->velocity.y;
                             }
-                            Event *e = new Event(1, 0, 1.0, 0, ball);
-                            g->brickHitSound.play();
-                            g->eventManager->enqueue(e);
-                            g->eventManager->raise(e);
-                            //ball->velocity.y = -ball->velocity.y;
                         }
                     }
+                    
                 }
             }
         }
     }
 
-    //reset power up logic
-    for (auto b : *bricks) {
-        if (b->isVisible && g->lastPowerUpTime > 0.f) {
-            float elapsedTime = g->globalTimeline->getCurrentTime() - g->lastPowerUpTime;
-            if (elapsedTime > 3.0f) {
-                std::cout<<"Resetting texture\n";
-                // Reset the brick to its original state
-                b->resetPower();
-                g->lastPowerUpTime = 0.f;
-            }
-        }
+    if (g->power->isActive && !g->isPowerActive && ball->getGlobalBounds().intersects(g->power->getGlobalBounds())){
+        std::cout<<"gained power up!\n";
+        g->power->isActive = false;
+        //PowerUp->isActive controls visibility
+        //Game->isPowerActive controls power
+        g->isPowerActive = true;
+        Event *e = new Event(2, 0, 0, 1, ball);
+        g->eventManager->enqueue(e);
+        g->eventManager->raise(e);
     }
 
     if (ball->getGlobalBounds().intersects(platform->getGlobalBounds())){

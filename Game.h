@@ -6,6 +6,8 @@
 #include "Event.h"
 #include "EventManager.h"
 #include "CollisionEventHandler.h"
+#include "StarPowerEventHandler.h"
+#include "PowerUp.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
@@ -20,6 +22,7 @@ public:
     bool win = false;
     bool paused = false;
     bool gameEnded = false;
+    bool isPowerActive = false;
 
     int aliveBrickCount = 0;
 
@@ -36,14 +39,17 @@ public:
     float dt = 0;
     float mul = 80;
     float lastKeyPressed = 0;
-    float lastPowerUpTime = 0.f;
+    float endPowerUpTime = 0.f;
+    float startPowerUpTime = 0.f;
     Timeline *globalTimeline;
     
     CollisionEventHandler *ceh;
+    StarPowerEventHandler *stareh;
 
     sf::RenderWindow window;
     float _windowLength = 800;
     float _windowHeight = 600;
+    PowerUp *power;
 
     zmq::context_t context;
     zmq::socket_t sock;
