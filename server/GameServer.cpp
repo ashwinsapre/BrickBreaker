@@ -1,6 +1,6 @@
-#include "zmq.hpp"
-#include "GameServer.h"
-#include "Timeline.h"
+#include "../include/zmq.hpp"
+#include "../include/GameServer.h"
+#include "../include/Timeline.h"
 #include <iostream>
 #include <random>
 #include <ctime>

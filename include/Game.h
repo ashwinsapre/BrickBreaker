@@ -8,6 +8,7 @@
 #include "CollisionEventHandler.h"
 #include "StarPowerEventHandler.h"
 #include "FreezePowerEventHandler.h"
+#include "ScoreManager.h"
 #include "PowerUp.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -47,6 +48,8 @@ public:
     CollisionEventHandler *ceh;
     StarPowerEventHandler *stareh;
     FreezePowerEventHandler *freezeeh;
+
+    ScoreManager *scoreManager;
 
     sf::RenderWindow window;
     float _windowLength = 800;

@@ -128,6 +128,7 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
 
         //WIN SCREEN
         if (g->win){
+            g->scoreManager->saveScore("ashwin", g->globalTimeline->getCurrentTime());
             sf::Text text;
             text.setFont(font);
             text.setString("YOU WIN!!");
@@ -259,12 +260,10 @@ void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks
 
             //MOVE PLATFORM RIGHT
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !g->paused && g->gameStarted){
-                std::cout<<g->dt<<std::endl;
                 platform->move(2.0f*g->dt*g->mul, 0);
             }
             //MOVE PLATFORM LEFT
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !g->paused && g->gameStarted){
-                std::cout<<g->dt<<std::endl;
                 platform->move(-2.0f*g->dt*g->mul, 0);
             }
             //TRIGGER EXTERNAL SCRIPT

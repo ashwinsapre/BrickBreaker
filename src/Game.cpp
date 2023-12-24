@@ -12,7 +12,9 @@ void Game::init() {
     hitSound.setBuffer(hitBuffer);
     brickHitBuffer.loadFromFile("./Assets/brick_hit.wav");
     brickHitSound.setBuffer(brickHitBuffer);
-    // peh = new PauseEventHandler();
+
+    scoreManager = new ScoreManager();
+    scoreManager->loadScores();
 
     sf::Clock c;
     globalTimeline = new Timeline(c,1.f);
