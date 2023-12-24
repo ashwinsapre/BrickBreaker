@@ -11,7 +11,7 @@ public:
     std::vector<Score> scores;
 
     void loadScores();
-    void saveScore(const std::string& playerName, int score);
+    void saveScore(const std::string& playerName, float score);
     void displayScores();
 };
 

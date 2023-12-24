@@ -8,9 +8,9 @@ void Game::init() {
     ceh = new CollisionEventHandler();
     stareh = new StarPowerEventHandler();
     freezeeh = new FreezePowerEventHandler();
-    hitBuffer.loadFromFile("./Assets/hit.wav");
+    hitBuffer.loadFromFile("../assets/hit.wav");
     hitSound.setBuffer(hitBuffer);
-    brickHitBuffer.loadFromFile("./Assets/brick_hit.wav");
+    brickHitBuffer.loadFromFile("../assets/brick_hit.wav");
     brickHitSound.setBuffer(brickHitBuffer);
 
     scoreManager = new ScoreManager();

@@ -1,14 +1,16 @@
 .PHONY: all clean
 
-all: client server
+all: force client server
 
-main_executable:
-	$(MAKE) -C . -f client/Makefile
+force:
+	@true
 
-server_executable:
-	$(MAKE) -C . -f server/Makefile
+client:
+	$(MAKE) -C client
+
+server:
+	$(MAKE) -C server
 
 clean:
 	$(MAKE) -C client clean
 	$(MAKE) -C server clean
-	rm -f client server

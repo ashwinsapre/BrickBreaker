@@ -1,7 +1,7 @@
 #include "FreezePowerUp.h"
 
 FreezePowerUp::FreezePowerUp(float size) : PowerUp(size) {
-    if (freezeTexture.loadFromFile("./Assets/clock.png")) {
+    if (freezeTexture.loadFromFile("../assets/clock.png")) {
         setTexture(&freezeTexture);
     }
 }

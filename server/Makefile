@@ -2,11 +2,8 @@ CXX := g++
 CXXFLAGS := -std=c++11
 SFML_LIBS := -lsfml-graphics -lsfml-window -lsfml-system
 ZMQ_LIB := -lzmq
-INCLUDE_DIR := -I../include  # Add this line to specify the include directory
-
-# Source files in the current directory
+INCLUDE_DIR := -I../include
 SRC_CURRENT := GameServer.cpp
-# Source files in the 'src' directory
 SRC_SRC := ../src/Timeline.cpp
 
 # Combine source files

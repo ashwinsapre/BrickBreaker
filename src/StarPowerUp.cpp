@@ -2,7 +2,7 @@
 #include "StarPowerUp.h"
 
 StarPowerUp::StarPowerUp(float size) : PowerUp(size) {
-    if (starTexture.loadFromFile("./Assets/star.png")) {
+    if (starTexture.loadFromFile("../assets/star.png")) {
         setTexture(&starTexture);
     }
 }

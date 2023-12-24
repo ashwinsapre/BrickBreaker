@@ -52,9 +52,9 @@ int main()
 
         // With the "object_context" parameter, these scripts are put in a
         // different context than the prior three scripts
-        sm->addScript("change_size", "scripts/change_size.js", "object_context");
-        sm->addScript("handle_event", "scripts/handle_event.js", "object_context");
-        sm->addScript("raise_event", "scripts/raise_event.js", "object_context");
+        //sm->addScript("change_size", "../scripts/change_size.js", "object_context");
+        //sm->addScript("handle_event", "../scripts/handle_event.js", "object_context");
+        //sm->addScript("raise_event", "../scripts/raise_event.js", "object_context");
 
         //time management
         float dt = 0;
@@ -81,8 +81,6 @@ int main()
             }
             renderService(game, ball, bricks, platform);
         }
-        
-        
     }
     isolate->Dispose();
     v8::V8::Dispose();

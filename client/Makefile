@@ -2,7 +2,6 @@ CXX := g++
 CXXFLAGS := -w -std=c++17
 SFML_LIBS := -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system
 ZMQ_LIB := -lzmq
-
 V8_INCLUDE := -I/usr/include/v8
 INCLUDE_PATH := -I../include
 

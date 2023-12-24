@@ -90,7 +90,7 @@ void receive(Game *g, std::vector<StaticPlatform*> *bricks){
 
 void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks, StaticPlatform *platform){
     sf::Font font;
-    font.loadFromFile("./Assets/arial.ttf");
+    font.loadFromFile("../assets/arial.ttf");
     g->window.clear();
     if (g->gameStarted){
         //if it has been 5 seconds since the last power up ended, make a new power up
@@ -257,6 +257,10 @@ void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks
                 g->gameEnded = false;
                 reset(g, ball, platform, bricks);
             }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && !g->paused && g->gameStarted){
+                g->win = true;
+                g->gameEnded = true;
+            }
 
             //MOVE PLATFORM RIGHT
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !g->paused && g->gameStarted){
@@ -383,7 +387,7 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
     if (ball->getGlobalBounds().intersects(platform->getGlobalBounds())){
 	    g->hitSound.play();
         float offsetFromCenter = ball->getPosition().x - (platform->getGlobalBounds().left + platform->getGlobalBounds().width/2);
-        sm->runOne("handle_event", true, "object_context");
+        //sm->runOne("handle_event", true, "object_context");
         Event *e = new Event(1, 0, 1.0, offsetFromCenter, ball);
         g->eventManager->enqueue(e);
         g->eventManager->raise(e);

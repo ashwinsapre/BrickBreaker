@@ -6,7 +6,7 @@ void ScoreManager::loadScores() {
     std::cout<<"Loading scores\n";
 }
 
-void ScoreManager::saveScore(const std::string& playerName, int score) {
+void ScoreManager::saveScore(const std::string& playerName, float score) {
     std::cout<<"Saved score "<<score<<" for player "<<playerName<<std::endl;
 }
 
