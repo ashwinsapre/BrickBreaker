@@ -10,8 +10,8 @@ class ScoreManager {
 public:
     std::vector<Score> scores;
 
-    void loadScores();
-    void saveScore(const std::string& playerName, float score);
+    std::vector<Score>* loadScores();
+    void saveScore(const Score& score);
     void displayScores();
 };
 

@@ -5,6 +5,8 @@ Timeline::Timeline(sf::Clock c, float ticSize) {
     this->isPaused = false;
     this->tic = ticSize;
     this->start_time = 0;
+    freeze_time = 0.f;
+    paused_time_total = 0.f;
     // Set to start of anchor later
 }
 
@@ -34,6 +36,22 @@ void Timeline::unpause() {
         paused_time_total += now - last_paused_time;
         isPaused = false;
     }
+}
+
+void Timeline::reset(){
+    clock.restart();
+    last_paused_time = 0.f;
+    paused_time_total = 0.f;
+    start_time = 0;
+    isPaused = false;
+}
+
+void Timeline::freeze(){
+    freeze_time = getCurrentTime();
+}
+
+void Timeline::unfreeze(){
+
 }
 
 

@@ -47,9 +47,11 @@ void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
 
 void reset(Game *g, Character *ball, StaticPlatform *platform, std::vector<StaticPlatform*> *bricks){
     // Reset brick positions
+    g->reset();
     bool stagger = true;
     int aliveBrickCount = 0;
-    auto brickIt = bricks->begin(); // Iterator for bricks
+    auto brickIt = bricks->begin();
+    ball->resetPower();
     for(float y = 20; y < g->_windowHeight - 400; y += g->brickHeight + 5) {
         for(float x = 0; x < g->_windowLength; x += g->brickLength + 5) {
             // Check if there are still bricks in the vector
@@ -128,20 +130,16 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
 
         //WIN SCREEN
         if (g->win){
-            g->scoreManager->saveScore("ashwin", g->globalTimeline->getCurrentTime());
-            sf::Text text;
-            text.setFont(font);
-            text.setString("YOU WIN!!");
-            text.setCharacterSize(40);
-            text.setFillColor(sf::Color::Green);
-            text.setPosition(400.f, 300.f);
-            g->window.draw(text);
-
-            text.setString("Press SPACE to continue...");
-            text.setCharacterSize(20);
-            text.setFillColor(sf::Color::White);
-            text.setPosition(400.f, 350.f);
-            g->window.draw(text);
+            if (!g->scoreSaved){
+                float score = g->globalTimeline->getCurrentTime();
+                g->globalTimeline->pause();
+                Score s("ashwin", score);
+                std::cout<<"saving score\n";
+                g->scoreManager->saveScore(s);
+                g->scoreSaved = true;
+            }
+            g->gameWinScreen->draw(g->window);
+            
         }
 
         //GAME SCREEN
@@ -196,36 +194,13 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
         }
         //GAME OVER SCREEN
         else if (g->gameEnded){
-            sf::Text text;
-            text.setFont(font);
-            text.setString("Game Over!");
-            text.setCharacterSize(24);
-            text.setFillColor(sf::Color::Red);
-            text.setPosition(400.f, 300.f);
-            g->window.draw(text);
-
-            text.setString("Press RETURN/ENTER to continue...");
-            text.setCharacterSize(20);
-            text.setFillColor(sf::Color::White);
-            text.setPosition(400.f, 350.f);
-            g->window.draw(text);
+            g->gameOverScreen->draw(g->window);
 
         }
     }
     else{
         //START SCREEN
-        sf::Text text;
-        text.setFont(font);
-        text.setString("BrickBreaker");
-        text.setCharacterSize(40);
-        text.setFillColor(sf::Color::Green);
-        text.setPosition(400.f, 300.f);
-        g->window.draw(text);
-        text.setString("Press SPACE to begin...");
-        text.setCharacterSize(20);
-        text.setFillColor(sf::Color::White);
-        text.setPosition(400.f, 350.f);
-        g->window.draw(text);
+        g->startScreen->draw(g->window);
     }
     
     g->window.display();
@@ -255,6 +230,7 @@ void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks
                 g->win = false;
                 g->paused = false;
                 g->gameEnded = false;
+                g->scoreSaved = false;
                 reset(g, ball, platform, bricks);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && !g->paused && g->gameStarted){
@@ -363,7 +339,6 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
     }
 
     if (g->power->isActive && !g->isPowerActive && ball->getGlobalBounds().intersects(g->power->getGlobalBounds())){
-        std::cout<<"gained power up!\n";
         g->startPowerUpTime = g->globalTimeline->getCurrentTime();
         g->power->isActive = false;
         //PowerUp->isActive controls visibility

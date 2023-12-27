@@ -19,7 +19,7 @@ void Character::setPower(){
 }
 
 void Character::resetPower(){
-    setTexture(nullptr);
+    setFillColor(sf::Color::White);
 }
 
 void Character::setColor(sf::Color c){

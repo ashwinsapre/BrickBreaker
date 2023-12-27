@@ -9,7 +9,9 @@
 #include "StarPowerEventHandler.h"
 #include "FreezePowerEventHandler.h"
 #include "ScoreManager.h"
+#include "Score.h"
 #include "PowerUp.h"
+#include "Screen.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
@@ -25,6 +27,7 @@ public:
     bool paused = false;
     bool gameEnded = false;
     bool isPowerActive = false;
+    bool scoreSaved = false;
 
     int aliveBrickCount = 0;
 
@@ -40,7 +43,7 @@ public:
 
     float dt = 0;
     float mul = 80;
-    float lastKeyPressed = 0;
+    float lastKeyPressed = 0.f;
     float endPowerUpTime = 0.f;
     float startPowerUpTime = 0.f;
     Timeline *globalTimeline;
@@ -49,12 +52,17 @@ public:
     StarPowerEventHandler *stareh;
     FreezePowerEventHandler *freezeeh;
 
+    std::vector<Score> *allScores = new std::vector<Score>();
     ScoreManager *scoreManager;
 
     sf::RenderWindow window;
     float _windowLength = 800;
     float _windowHeight = 600;
     PowerUp *power;
+
+    Screen *startScreen;
+    Screen *gameOverScreen;
+    Screen *gameWinScreen;
 
     zmq::context_t context;
     zmq::socket_t sock;
@@ -103,6 +111,8 @@ public:
     void renderService();
 
     void shutdown();
+
+    void reset();
 };
 
 #endif // GAME_H

@@ -11,6 +11,7 @@ public:
     float tic;
     float paused_time_total = 0.f;
     float last_paused_time = 0.f;
+    float freeze_time = 0.f;
     sf::Clock clock;
 
     Timeline(sf::Clock c, float ticSize);
@@ -22,6 +23,12 @@ public:
     void pause();
 
     void unpause();
+
+    void reset();
+
+    void freeze();
+
+    void unfreeze();
 };
 
 #endif // TIMELINE_H

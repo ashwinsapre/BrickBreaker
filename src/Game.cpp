@@ -13,8 +13,12 @@ void Game::init() {
     brickHitBuffer.loadFromFile("../assets/brick_hit.wav");
     brickHitSound.setBuffer(brickHitBuffer);
 
+    startScreen = new Screen(std::string("BRICKBREAKER"), std::string("Press SPACE to begin..."), 40, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
+    gameWinScreen = new Screen(std::string("YOU WIN!"), std::string("Press RETURN/ENTER to continue..."), 40, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
+    gameOverScreen = new Screen(std::string("GAME OVER!"), std::string("Press RETURN/ENTER to continue..."), 24, 20, sf::Color::Red, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
+
     scoreManager = new ScoreManager();
-    scoreManager->loadScores();
+    allScores = new std::vector<Score>();
 
     sf::Clock c;
     globalTimeline = new Timeline(c,1.f);
@@ -38,6 +42,11 @@ void Game::init() {
     std::cout<<message<<std::endl;
     std::cout<<"init done\n";
 
+    allScores = scoreManager->loadScores();
+    std::cout<<"number of saved scores="<<allScores->size()<<std::endl;
+    for (int i=0;i<allScores->size(); i++){
+        std::cout << (*allScores)[i].playerName << (*allScores)[i].scoreValue << std::endl;
+    }
 }
 void Game::inputService(float dt, float mul){
     if (window.hasFocus()){
@@ -66,4 +75,21 @@ void Game::disconnect() {
     zmq::message_t rep;
     sock.recv(rep, zmq::recv_flags::none);
     std::cout << "Received message: " + rep.to_string() << std::endl;
+}
+
+void Game::reset(){
+    gameStarted = false;
+    needNewTarget = false;
+    win = false;
+    paused = false;
+    gameEnded = false;
+    isPowerActive = false;
+    scoreSaved = false;
+
+    globalTimeline->reset();
+    power->isActive = false;
+    endPowerUpTime = 0.f;
+    startPowerUpTime = 0.f;
+    lastKeyPressed = 0.f;
+
 }

@@ -7,9 +7,9 @@
 class Score {
 public:
     std::string playerName;
-    int scoreValue;
+    float scoreValue;
 
-    Score(const std::string& name, int score) : playerName(name), scoreValue(score) {}
+    Score(const std::string& name, float score) : playerName(name), scoreValue(score) {}
 };
 
 #endif

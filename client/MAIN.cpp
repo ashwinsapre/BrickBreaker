@@ -73,7 +73,7 @@ int main()
             sf::Event event;
             eventService(game, event); 
             inputService(game, ball, bricks, platform, sm);
-            if (game->gameStarted && !game->paused){
+            if (game->gameStarted && !game->paused && !game->gameEnded){
                     physicsService(game, ball);
                     collisionService(game, platform, ball, bricks, sm);
                     send(game);
