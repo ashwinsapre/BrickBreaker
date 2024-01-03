@@ -16,9 +16,18 @@ void Game::init() {
     startScreen = new Screen(std::string("BRICKBREAKER"), std::string("Press SPACE to begin..."), 40, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
     gameWinScreen = new Screen(std::string("YOU WIN!"), std::string("Press RETURN/ENTER to continue..."), 40, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
     gameOverScreen = new Screen(std::string("GAME OVER!"), std::string("Press RETURN/ENTER to continue..."), 24, 20, sf::Color::Red, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
+    scoresScreen = new Screen(std::string("LEADERBOARD"), std::string(""), 24, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
 
     scoreManager = new ScoreManager();
     allScores = new std::vector<Score>();
+
+    if (!themeMusic.openFromFile("../assets/thememusic.flac")){
+        std::cout<<"error loading music\n";
+    }
+    else{
+        std::cout<<"music loaded\n";
+    }
+    themeMusic.play();
 
     sf::Clock c;
     globalTimeline = new Timeline(c,1.f);
@@ -42,7 +51,7 @@ void Game::init() {
     std::cout<<message<<std::endl;
     std::cout<<"init done\n";
 
-    allScores = scoreManager->loadScores();
+    allScores = scoreManager->getTopScores(5);
     std::cout<<"number of saved scores="<<allScores->size()<<std::endl;
     for (int i=0;i<allScores->size(); i++){
         std::cout << (*allScores)[i].playerName << (*allScores)[i].scoreValue << std::endl;

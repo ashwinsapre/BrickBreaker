@@ -28,6 +28,7 @@ public:
     bool gameEnded = false;
     bool isPowerActive = false;
     bool scoreSaved = false;
+    bool showScores = false;
 
     int aliveBrickCount = 0;
 
@@ -47,6 +48,8 @@ public:
     float endPowerUpTime = 0.f;
     float startPowerUpTime = 0.f;
     Timeline *globalTimeline;
+
+    sf::Music themeMusic;
     
     CollisionEventHandler *ceh;
     StarPowerEventHandler *stareh;
@@ -63,6 +66,7 @@ public:
     Screen *startScreen;
     Screen *gameOverScreen;
     Screen *gameWinScreen;
+    Screen *scoresScreen;
 
     zmq::context_t context;
     zmq::socket_t sock;

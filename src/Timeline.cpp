@@ -1,10 +1,11 @@
 #include "Timeline.h"
 
 Timeline::Timeline(sf::Clock c, float ticSize) {
-    this->clock = c;
-    this->isPaused = false;
-    this->tic = ticSize;
-    this->start_time = 0;
+    clock = c;
+    isPaused = false;
+    isFrozen = false;
+    tic = ticSize;
+    start_time = 0;
     freeze_time = 0.f;
     paused_time_total = 0.f;
     // Set to start of anchor later
@@ -42,16 +43,24 @@ void Timeline::reset(){
     clock.restart();
     last_paused_time = 0.f;
     paused_time_total = 0.f;
+    last_frozen_time = 0.f;
     start_time = 0;
     isPaused = false;
 }
 
 void Timeline::freeze(){
-    freeze_time = getCurrentTime();
+    if (!isFrozen) {
+        last_frozen_time = clock.getElapsedTime().asSeconds();
+        isFrozen = true;
+    }
 }
 
 void Timeline::unfreeze(){
-
+    if (isFrozen) {
+        float now = clock.getElapsedTime().asSeconds();
+        paused_time_total += now - last_frozen_time;
+        isFrozen = false;
+    }
 }
 
 

@@ -13,6 +13,7 @@ public:
     std::vector<Score>* loadScores();
     void saveScore(const Score& score);
     void displayScores();
+    std::vector<Score>* getTopScores(int count);
 };
 
 #endif

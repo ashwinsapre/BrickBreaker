@@ -36,12 +36,8 @@ void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
     ball->velocity = sf::Vector2f(0, g->yvel);
     ball->move(ball->velocity);
 
-    if (getRandom()==0){
-        g->power = new StarPowerUp(20);
-    }
-    else{
-        g->power = new FreezePowerUp(20);
-    }
+    g->power = new StarPowerUp(20);
+
     
 }
 
@@ -99,8 +95,7 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
         if (!g->power->isActive && (g->globalTimeline->getCurrentTime() - g->endPowerUpTime)>5.f){
             g->power->isActive = true;
             g->startPowerUpTime = g->globalTimeline->getCurrentTime();
-            //make random y coordinate
-            g->power->setPosition(400.f, 500.f);
+            g->power->setPosition(ball->getPosition().x, 500.f);
         }
         //if it has been 10 seconds since the power up started, stop displaying
         if (g->power->isActive && (g->globalTimeline->getCurrentTime() - g->startPowerUpTime)>10.f){
@@ -119,13 +114,7 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
                 g->eventManager->raise(e);
             }
 
-            //randomly setting new powerup type
-            if (getRandom()==0){
-                g->power = new StarPowerUp(20);
-            }
-            else{
-                g->power = new FreezePowerUp(20);
-            }
+            g->power = new StarPowerUp(20);
         }
 
         //WIN SCREEN
@@ -164,9 +153,9 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
             if (!g->paused){
                 elapsedTimeInSeconds = g->globalTimeline->getCurrentTime();
             }
-            if (dynamic_cast<FreezePowerUp*>(g->power) && g->isPowerActive){
-                elapsedTimeInSeconds = g->startPowerUpTime;
-            }
+            // if (dynamic_cast<FreezePowerUp*>(g->power) && g->isPowerActive){
+            //     elapsedTimeInSeconds = g->startPowerUpTime;
+            // }
             
             text.setString(std::to_string(elapsedTimeInSeconds));
             text.setCharacterSize(20);
@@ -199,8 +188,14 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
         }
     }
     else{
-        //START SCREEN
-        g->startScreen->draw(g->window);
+        if (!g->showScores){
+            //START SCREEN
+            g->startScreen->draw(g->window);
+        }
+        else{
+            g->scoresScreen->draw(g->window);
+        }
+        
     }
     
     g->window.display();
@@ -217,9 +212,25 @@ void eventService(Game *g, sf::Event event){
 void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks, StaticPlatform *platform,  ScriptManager *sm){
     if (g->window.hasFocus()){
             //START GAME
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !g->gameStarted){
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !g->gameStarted && !g->showScores){
                 g->gameStarted=true;
                 g->globalTimeline->clock.restart();
+            }
+
+            //SHOW LEADERBOARD
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !g->gameStarted){
+                g->allScores = g->scoreManager->getTopScores(5);
+                std::string scoreString = "";
+                for (auto s: *(g->allScores)){
+                    scoreString = scoreString + s.playerName + "\t" + std::to_string(s.scoreValue) + "\n";
+                }
+                g->scoresScreen->setSecondaryText(scoreString);
+                g->showScores = true;
+            }
+
+            //REMOVE LEADERBOARD
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && g->showScores){
+                g->showScores = false;
             }
 
             //RESTART GAME
@@ -287,7 +298,7 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
                 if (ball->getGlobalBounds().intersects(brickBounds)) {
                     (*bricks)[i]->isVisible = false;
                     g->aliveBrickCount-=1;
-                    if (!g->isPowerActive || dynamic_cast<FreezePowerUp*>(g->power)){
+                    if (!g->isPowerActive){
                         // Calculate intersection depth
                         float intersectDepthX = std::min(ball->getGlobalBounds().left + ball->getGlobalBounds().width, brickBounds.left + brickBounds.width) - 
                                                 std::max(ball->getGlobalBounds().left, brickBounds.left);
