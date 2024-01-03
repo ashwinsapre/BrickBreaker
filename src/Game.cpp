@@ -27,7 +27,12 @@ void Game::init() {
     else{
         std::cout<<"music loaded\n";
     }
-    themeMusic.play();
+
+    startMusic.openFromFile("../assets/startmusic.flac");
+    gameOverMusic.openFromFile("../assets/gameovermusic.flac");
+    starMusic.openFromFile("../assets/starmusic.flac");
+    gameWinMusic.openFromFile("../assets/gamewinmusic.flac");
+    startMusic.play();
 
     sf::Clock c;
     globalTimeline = new Timeline(c,1.f);
@@ -95,6 +100,8 @@ void Game::reset(){
     isPowerActive = false;
     scoreSaved = false;
 
+    themeMusicPausedTime = 0.f;
+    startMusic.play();
     globalTimeline->reset();
     power->isActive = false;
     endPowerUpTime = 0.f;

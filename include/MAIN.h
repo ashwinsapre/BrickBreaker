@@ -37,7 +37,7 @@ void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
     ball->move(ball->velocity);
 
     g->power = new StarPowerUp(20);
-
+    g->startMusic.play();
     
 }
 
@@ -99,6 +99,9 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
         }
         //if it has been 10 seconds since the power up started, stop displaying
         if (g->power->isActive && (g->globalTimeline->getCurrentTime() - g->startPowerUpTime)>10.f){
+            g->starMusic.stop();
+            g->themeMusic.setPlayingOffset(sf::seconds(g->themeMusicPausedTime));
+            g->themeMusic.play();
             std::cout<<"Power up ended\n";
             g->power->isActive = false;
             g->isPowerActive = false;
@@ -120,6 +123,8 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
         //WIN SCREEN
         if (g->win){
             if (!g->scoreSaved){
+                g->themeMusic.stop();
+                g->gameWinMusic.play();
                 float score = g->globalTimeline->getCurrentTime();
                 g->globalTimeline->pause();
                 Score s("ashwin", score);
@@ -184,7 +189,8 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
         //GAME OVER SCREEN
         else if (g->gameEnded){
             g->gameOverScreen->draw(g->window);
-
+            g->themeMusic.stop();
+            g->gameOverMusic.play();
         }
     }
     else{
@@ -213,6 +219,8 @@ void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks
     if (g->window.hasFocus()){
             //START GAME
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !g->gameStarted && !g->showScores){
+                g->startMusic.stop();
+                g->themeMusic.play();
                 g->gameStarted=true;
                 g->globalTimeline->clock.restart();
             }
@@ -352,21 +360,17 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
     if (g->power->isActive && !g->isPowerActive && ball->getGlobalBounds().intersects(g->power->getGlobalBounds())){
         g->startPowerUpTime = g->globalTimeline->getCurrentTime();
         g->power->isActive = false;
+        
         //PowerUp->isActive controls visibility
         //Game->isPowerActive controls power
         g->isPowerActive = true;
-        if (dynamic_cast<StarPowerUp*>(g->power)) {
-            std::cout << "It's a StarPowerUp!" << std::endl;
-            Event *e = new Event(2, 0, 0, 1, ball);
-            g->eventManager->enqueue(e);
-            g->eventManager->raise(e);
-        }
-        else {
-            std::cout << "It's a FreezePowerUp!" << std::endl;
-            Event *e = new Event(3, 0, 0, 1, ball);
-            g->eventManager->enqueue(e);
-            g->eventManager->raise(e);
-        }
+        g->themeMusicPausedTime = g->themeMusic.getPlayingOffset().asSeconds();
+        g->themeMusic.pause();
+        g->starMusic.play();
+        std::cout << "It's a StarPowerUp!" << std::endl;
+        Event *e = new Event(2, 0, 0, 1, ball);
+        g->eventManager->enqueue(e);
+        g->eventManager->raise(e);
         
     }
 

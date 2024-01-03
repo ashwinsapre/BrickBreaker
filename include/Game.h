@@ -47,9 +47,14 @@ public:
     float lastKeyPressed = 0.f;
     float endPowerUpTime = 0.f;
     float startPowerUpTime = 0.f;
+    float themeMusicPausedTime = 0.f;
     Timeline *globalTimeline;
 
+    sf::Music startMusic;
     sf::Music themeMusic;
+    sf::Music starMusic;
+    sf::Music gameOverMusic;
+    sf::Music gameWinMusic;
     
     CollisionEventHandler *ceh;
     StarPowerEventHandler *stareh;
