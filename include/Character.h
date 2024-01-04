@@ -18,10 +18,10 @@ public:
 
     float x;
     float y;
-    float xvel=1;
-    float yvel=1;
+    float xvel=2;
+    float yvel=2;
     int length;
-    float maxVel = 0.2f;
+    float maxVel = 1.f;
 
     sf::Color color;
     sf::Texture power;

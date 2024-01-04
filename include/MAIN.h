@@ -16,41 +16,47 @@ int getRandom(){
     return randomValue;
 }
 
-void init(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks){
-    //std::cout<<"making bricks\n";
-    //init 2 rows of bricks
-    bool stagger=true;
+void init(Game* g, Character* ball, std::vector<StaticPlatform*>* bricks) {
+    bool stagger = true;
     int aliveBrickCount = 0;
-    for(float y=20; y<g->_windowHeight-400; y+=g->brickHeight+5){
-        for(float x=0; x<g->_windowLength; x+=g->brickLength+5){
-            StaticPlatform *b = new StaticPlatform(g->brickLength, g->brickHeight, stagger?x:x+25, y, sf::Color::White);
+
+    // Adjust starting position to be 1/5th from the top
+    float startY = g->_windowHeight / 7.0f;
+    g->brickTop = startY;
+
+    for (float y = startY; y < startY + 3 * (g->brickHeight + 5); y += g->brickHeight + 5) {
+        for (float x = 0; x < g->_windowLength - 10.f; x += g->brickLength + 5) {
+            StaticPlatform* b = new StaticPlatform(g->brickLength, g->brickHeight, stagger ? x : x + 25, y, sf::Color::White);
             bricks->push_back(b);
             aliveBrickCount++;
         }
-        stagger=!stagger;
+        stagger = !stagger;
+        g->brickBottom = y;
     }
-    //init player
-    //init ball
+
+    // Initialize player and ball
     g->aliveBrickCount = aliveBrickCount;
-    ball->setPos(400.f, 450.f);
+    ball->setPos(0.5f * (g->_windowLength), 4.0f * g->_windowHeight / 5.0f);
     ball->velocity = sf::Vector2f(0, g->yvel);
     ball->move(ball->velocity);
 
     g->power = new StarPowerUp(20);
     g->startMusic.play();
-    
 }
 
-void reset(Game *g, Character *ball, StaticPlatform *platform, std::vector<StaticPlatform*> *bricks){
+
+void reset(Game* g, Character* ball, StaticPlatform* platform, std::vector<StaticPlatform*>* bricks) {
     // Reset brick positions
     g->reset();
     bool stagger = true;
     int aliveBrickCount = 0;
     auto brickIt = bricks->begin();
     ball->resetPower();
-    for(float y = 20; y < g->_windowHeight - 400; y += g->brickHeight + 5) {
-        for(float x = 0; x < g->_windowLength; x += g->brickLength + 5) {
-            // Check if there are still bricks in the vector
+
+    float startY = g->_windowHeight / 5.0f;
+
+    for (float y = startY; y < startY + 3 * (g->brickHeight + 5); y += g->brickHeight + 5) {
+        for (float x = 0; x < g->_windowLength; x += g->brickLength + 5) {
             if (brickIt != bricks->end()) {
                 // Update the brick position to its initial position
                 (*brickIt)->setPosition(stagger ? x : x + 25, y);
@@ -62,13 +68,17 @@ void reset(Game *g, Character *ball, StaticPlatform *platform, std::vector<Stati
         stagger = !stagger;
     }
 
-    platform->setPosition(350.f, 550.f);
+    // Reset platform position
+    platform->setPosition(0.5f * (g->_windowLength - platform->getSize().x), g->_windowHeight - 100.f);
 
-    g->aliveBrickCount = aliveBrickCount;
-    ball->setPos(400.f, 450.f);
+    // Reset ball position
+    ball->setPos(0.5f * (g->_windowLength), 3.0f * g->_windowHeight / 5.0f);
     ball->velocity = sf::Vector2f(0, g->yvel);
     ball->move(ball->velocity);
+
+    g->aliveBrickCount = aliveBrickCount;
 }
+
 
 void send(Game *g){
     std::string s = "--";
@@ -79,16 +89,16 @@ void receive(Game *g, std::vector<StaticPlatform*> *bricks){
     if (g->receiveFromServer() == "UPDATE"){
         //std::cout<<"MOVE BRICKS DOWN!\n";
         for (int i=(*bricks).size()-1;i>=0;i--){
-            (*bricks)[i]->move(0, 10.f);
+            (*bricks)[i]->move(0, g->_windowHeight/30.f);
         }
-        g->brickBottom+=10.f;
-        g->brickTop+=10.f;
+        g->brickBottom+=g->_windowHeight/20.f;
+        g->brickTop+=g->_windowHeight/20.f;
     }
 }
 
 void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks, StaticPlatform *platform){
     sf::Font font;
-    font.loadFromFile("../assets/arial.ttf");
+    font.loadFromFile("../assets/valorax.otf");
     g->window.clear();
     if (g->gameStarted){
         //if it has been 5 seconds since the last power up ended, make a new power up
@@ -97,8 +107,8 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
             g->startPowerUpTime = g->globalTimeline->getCurrentTime();
             g->power->setPosition(ball->getPosition().x, 500.f);
         }
-        //if it has been 10 seconds since the power up started, stop displaying
-        if (g->power->isActive && (g->globalTimeline->getCurrentTime() - g->startPowerUpTime)>10.f){
+        //if it has been 20 seconds since the power up started, stop displaying
+        if (g->power->isActive && (g->globalTimeline->getCurrentTime() - g->startPowerUpTime)>20.f){
             g->starMusic.stop();
             g->themeMusic.setPlayingOffset(sf::seconds(g->themeMusicPausedTime));
             g->themeMusic.play();
@@ -138,6 +148,7 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
 
         //GAME SCREEN
         else if(!g->gameEnded){
+            g->window.draw(g->backgroundSprite);
             g->window.draw(*ball);
             if (platform->newColor==0){
                 platform->setFillColor(sf::Color::Red);
@@ -253,6 +264,7 @@ void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks
                 reset(g, ball, platform, bricks);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && !g->paused && g->gameStarted){
+                std::cout<<"manually won\n";
                 g->win = true;
                 g->gameEnded = true;
             }
@@ -266,12 +278,12 @@ void inputService(Game *g, Character *ball, std::vector<StaticPlatform*> *bricks
                 platform->move(-2.0f*g->dt*g->mul, 0);
             }
             //TRIGGER EXTERNAL SCRIPT
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !g->paused && g->gameStarted){
-                sm->runOne("change_size", true, "object_context");
-                sf::Vector2f newsize(platform->xsize, platform->ysize);
-                platform->setSize(newsize);
-                platform->setPosition(0,500.f);
-            }
+            // if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !g->paused && g->gameStarted){
+            //     sm->runOne("change_size", true, "object_context");
+            //     sf::Vector2f newsize(platform->xsize, platform->ysize);
+            //     platform->setSize(newsize);
+            //     platform->setPosition(0,500.f);
+            // }
             //PAUSE
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && g->gameStarted && (g->globalTimeline->clock.getElapsedTime().asSeconds() - g->lastKeyPressed)>0.1){
                 g->lastKeyPressed = g->globalTimeline->clock.getElapsedTime().asSeconds();
@@ -400,14 +412,14 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
         // ball->velocity.x = -ball->velocity.x;
     }
     //collision with right boundary
-    if (ball->getGlobalBounds().left > 750.f){
+    if (ball->getGlobalBounds().left > g->_windowLength - 5.f){
         Event *e = new Event(1, 1.0, 0, 0, ball);
         g->eventManager->enqueue(e);
         g->eventManager->raise(e);
         // ball->velocity.x = -ball->velocity.x;
     }
 
-    if (ball->getPosition().y > 600 ){
+    if (ball->getPosition().y > g->_windowHeight ){
         ball->isAlive = false;
         g->gameEnded = true;
     }
@@ -418,6 +430,7 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
         }
     }
     if (g->aliveBrickCount==0){
+        std::cout<<"no more alive bricks\n";
         g->win = true;
         g->gameEnded = true;
     }

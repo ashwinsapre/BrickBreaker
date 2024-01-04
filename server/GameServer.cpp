@@ -39,7 +39,7 @@ int main(){
             g.init_connect.send(zmq::buffer(msg));
         }
         else{
-            if (globalTime->clock.getElapsedTime().asSeconds()>5){
+            if (globalTime->clock.getElapsedTime().asSeconds()>15){
                 std::cout<<"told client to update screen\n";
                 std::string msg="UPDATE";
                 g.init_connect.send(zmq::buffer(msg));

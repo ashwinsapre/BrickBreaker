@@ -19,6 +19,9 @@ public:
     void setPrimaryTextSize(unsigned int size);
     void setSecondaryTextSize(unsigned int size);
     void setFont(const std::string& fontPath);
+    void setBackgroundImage(const std::string& imagePath);
+    void setBackgroundPosition(const sf::Vector2f& position);
+    void setBackgroundSize(const sf::Vector2f& size);
 
     void draw(sf::RenderWindow& window);
 
@@ -26,6 +29,8 @@ private:
     sf::Text primaryText;
     sf::Text secondaryText;
     sf::Font font;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
 };
 
 #endif // SCREEN_H

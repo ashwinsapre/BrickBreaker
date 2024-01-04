@@ -34,8 +34,8 @@ public:
 
     float targetX=300;
     float targetY=300;
-    float brickLength = 70.f;
-    float brickHeight = 50.f;
+    float brickLength;
+    float brickHeight;
     float brickTop = 195.f;
     float brickBottom = 305.f;
 
@@ -43,7 +43,7 @@ public:
     float yvel = 1;
 
     float dt = 0;
-    float mul = 80;
+    float mul = 200;
     float lastKeyPressed = 0.f;
     float endPowerUpTime = 0.f;
     float startPowerUpTime = 0.f;
@@ -64,14 +64,17 @@ public:
     ScoreManager *scoreManager;
 
     sf::RenderWindow window;
-    float _windowLength = 800;
-    float _windowHeight = 600;
+    sf::VideoMode videoMode;
+    float _windowLength = 0.f;
+    float _windowHeight = 0.f;
     PowerUp *power;
 
     Screen *startScreen;
     Screen *gameOverScreen;
     Screen *gameWinScreen;
     Screen *scoresScreen;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
 
     zmq::context_t context;
     zmq::socket_t sock;

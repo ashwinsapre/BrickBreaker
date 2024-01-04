@@ -2,13 +2,13 @@
 
 Screen::Screen() {
     // Initialize default values or load default font, etc.
-    font.loadFromFile("../assets/arial.ttf"); // Change the font file as needed
+    font.loadFromFile("../assets/valorax.otf"); // Change the font file as needed
     primaryText.setFont(font);
     secondaryText.setFont(font);
 }
 
 Screen::Screen(const std::string& p, const std::string& s, int psize, int ssize, const sf::Color& pcolor, const sf::Color& scolor, const sf::Vector2f& ppos, const sf::Vector2f& spos){
-    font.loadFromFile("../assets/arial.ttf"); // Change the font file as needed
+    font.loadFromFile("../assets/valorax.otf"); // Change the font file as needed
     primaryText.setFont(font);
     secondaryText.setFont(font);
     setPrimaryText(p);
@@ -59,7 +59,24 @@ void Screen::setFont(const std::string& fontPath) {
     secondaryText.setFont(font);
 }
 
+void Screen::setBackgroundImage(const std::string& imagePath) {
+    if (backgroundTexture.loadFromFile(imagePath)) {
+        backgroundSprite.setTexture(backgroundTexture);
+        // backgroundSprite.setScale(0.25, 0.25);
+    }
+    // Handle loading error if needed
+}
+
+void Screen::setBackgroundPosition(const sf::Vector2f& position) {
+    backgroundSprite.setPosition(position);
+}
+
+void Screen::setBackgroundSize(const sf::Vector2f& size) {
+    backgroundSprite.setScale(size.x / backgroundSprite.getLocalBounds().width, size.y / backgroundSprite.getLocalBounds().height);
+}
+
 void Screen::draw(sf::RenderWindow& window) {
+    window.draw(backgroundSprite);
     window.draw(primaryText);
     window.draw(secondaryText);
 }

@@ -45,7 +45,7 @@ int main()
 
         std::vector<StaticPlatform*> *bricks = new std::vector<StaticPlatform*>();
         Character *ball = new Character(20.f);
-        StaticPlatform *platform = new StaticPlatform(100.f, 10.f, 350.f, 550.f, sf::Color::Red);
+        StaticPlatform *platform = new StaticPlatform(200.f, 10.f, game->_windowLength/2.f, game->_windowHeight-50.f, sf::Color::Red);
         init(game, ball, bricks);
 
         platform->exposeToV8(isolate, object_context);
