@@ -55,6 +55,9 @@ public:
     sf::Music starMusic;
     sf::Music gameOverMusic;
     sf::Music gameWinMusic;
+
+
+    sf::Texture brickTexture;
     
     CollisionEventHandler *ceh;
     StarPowerEventHandler *stareh;

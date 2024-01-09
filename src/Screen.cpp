@@ -38,11 +38,11 @@ void Screen::setSecondaryTextColor(const sf::Color& color) {
 }
 
 void Screen::setPrimaryTextPosition(const sf::Vector2f& position) {
-    primaryText.setPosition(position);
+    primaryText.setPosition(sf::Vector2f(position.x - primaryText.getLocalBounds().width/2, position.y - primaryText.getLocalBounds().height/2));
 }
 
 void Screen::setSecondaryTextPosition(const sf::Vector2f& position) {
-    secondaryText.setPosition(position);
+    secondaryText.setPosition(sf::Vector2f(position.x - secondaryText.getLocalBounds().width/2, position.y - secondaryText.getLocalBounds().height/2));
 }
 
 void Screen::setPrimaryTextSize(unsigned int size) {

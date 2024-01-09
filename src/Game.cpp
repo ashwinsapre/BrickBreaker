@@ -24,15 +24,17 @@ void Game::init() {
     
     if (backgroundTexture.loadFromFile("../assets/gamebackground.jpg")) {
         backgroundSprite.setTexture(backgroundTexture);
-        //backgroundSprite.setScale(0.25, 0.25);
+        sf::Vector2u textureSize = backgroundTexture.getSize();
+        backgroundSprite.setTextureRect(sf::IntRect(0, 0, static_cast<int>(textureSize.x), static_cast<int>(textureSize.y)));
+        backgroundSprite.setScale(static_cast<float>(_windowLength) / textureSize.x, static_cast<float>(_windowHeight) / textureSize.y);
     }
 
-    startScreen = new Screen(std::string("BRICKBREAKER"), std::string("Press SPACE to begin..."), 40, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
+    startScreen = new Screen(std::string("BRICKBREAKER"), std::string("Press SPACE to begin..."), 40, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(_windowLength/2.f, _windowHeight/2.f), sf::Vector2f(_windowLength/2.f, 50+_windowHeight/2.f));
     startScreen->setBackgroundImage("../assets/startbackground.jpeg");
     startScreen->setBackgroundPosition(sf::Vector2f(0.f, 0.f));
-    gameWinScreen = new Screen(std::string("YOU WIN!"), std::string("Press RETURN/ENTER to continue..."), 40, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
-    gameOverScreen = new Screen(std::string("GAME OVER!"), std::string("Press RETURN/ENTER to continue..."), 24, 20, sf::Color::Red, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
-    scoresScreen = new Screen(std::string("LEADERBOARD"), std::string(""), 24, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(400.f, 300.f), sf::Vector2f(400.f, 350.f));
+    gameWinScreen = new Screen(std::string("YOU WIN!"), std::string("Press RETURN/ENTER to continue..."), 40, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(_windowLength/2.f, _windowHeight/2.f), sf::Vector2f(_windowLength/2.f, 50+_windowHeight/2.f));
+    gameOverScreen = new Screen(std::string("GAME OVER!"), std::string("Press RETURN/ENTER to continue..."), 24, 20, sf::Color::Red, sf::Color::White, sf::Vector2f(_windowLength/2.f, _windowHeight/2.f), sf::Vector2f(_windowLength/2.f, 50+_windowHeight/2.f));
+    scoresScreen = new Screen(std::string("LEADERBOARD"), std::string(""), 24, 20, sf::Color::Green, sf::Color::White, sf::Vector2f(_windowLength/2.f, _windowHeight/2.f), sf::Vector2f(_windowLength/2.f, 50+_windowHeight/2.f));
 
     scoreManager = new ScoreManager();
     allScores = new std::vector<Score>();

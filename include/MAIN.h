@@ -24,9 +24,13 @@ void init(Game* g, Character* ball, std::vector<StaticPlatform*>* bricks) {
     float startY = g->_windowHeight / 7.0f;
     g->brickTop = startY;
 
-    for (float y = startY; y < startY + 3 * (g->brickHeight + 5); y += g->brickHeight + 5) {
-        for (float x = 0; x < g->_windowLength - 10.f; x += g->brickLength + 5) {
+    for (float y = startY; y < startY + 4 * (g->brickHeight + 5); y += g->brickHeight + 5) {
+        for (float x = 0; x < g->_windowLength - 20.f; x += g->brickLength + 5) {
             StaticPlatform* b = new StaticPlatform(g->brickLength, g->brickHeight, stagger ? x : x + 25, y, sf::Color::White);
+            if (g->brickTexture.loadFromFile("../assets/brick.png")) {
+                b->setTexture(&g->brickTexture);
+                // backgroundSprite.setScale(0.25, 0.25);
+            }
             bricks->push_back(b);
             aliveBrickCount++;
         }
@@ -193,7 +197,7 @@ void renderService(Game *g, Character *ball, std::vector<StaticPlatform*> *brick
                 text.setCharacterSize(24);
 
                 text.setFillColor(sf::Color::White);
-                text.setPosition(400.f, 300.f);
+                text.setPosition((g->_windowLength - text.getGlobalBounds().width)/2, (g->_windowHeight-text.getGlobalBounds().width)/2);
                 g->window.draw(text);
             }
         }
@@ -389,12 +393,12 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
     if (ball->getGlobalBounds().intersects(platform->getGlobalBounds())){
 	    g->hitSound.play();
         float offsetFromCenter = ball->getPosition().x - (platform->getGlobalBounds().left + platform->getGlobalBounds().width/2);
+        float normalizedOffset = offsetFromCenter / (platform->getGlobalBounds().width / 2);
+
         //sm->runOne("handle_event", true, "object_context");
-        Event *e = new Event(1, 0, 1.0, offsetFromCenter, ball);
+        Event *e = new Event(1, 0, 1.0, normalizedOffset, ball);
         g->eventManager->enqueue(e);
         g->eventManager->raise(e);
-        // ball->velocity.y = -ball->velocity.y;
-        // ball->velocity.x = offsetFromCenter*0.005 + ball->velocity.x;
     }
 
     //collision with top boundary
@@ -405,14 +409,14 @@ void collisionService(Game *g, StaticPlatform *platform, Character *ball, std::v
         //ball->velocity.y = -ball->velocity.y;
     }
     //collision with left boundary
-    if (ball->getGlobalBounds().left < 5.f){
+    if (ball->getGlobalBounds().left < 15.f){
         Event *e = new Event(1, 1.0, 0, 0, ball);
         g->eventManager->enqueue(e);
         g->eventManager->raise(e);
         // ball->velocity.x = -ball->velocity.x;
     }
     //collision with right boundary
-    if (ball->getGlobalBounds().left > g->_windowLength - 5.f){
+    if (ball->getGlobalBounds().left > g->_windowLength - 15.f){
         Event *e = new Event(1, 1.0, 0, 0, ball);
         g->eventManager->enqueue(e);
         g->eventManager->raise(e);
